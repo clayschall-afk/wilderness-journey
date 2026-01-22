@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Wilderness Journey: The Road to Canaan</title>
+
+    <style>
+
+        /* --- CSS STYLING --- */
+
+        :root {
+
+            --sand: #f4e4bc;
+
+            --sand-shadow: #e0d0a0;
+
+            --rock: #8c7b6c;
+
+            --sky: #87ceeb;
+
+            --text: #2c2c2c;
+
+            --accent: #b06500;
+
+            --green: #4caf50;
+
+            --red: #f44336;
+
+        }
+
+
+
+        body {
+
+            font-family: 'Georgia', serif;
+
+            background-color: var(--sand);
+
+            color: var(--text);
+
+            margin: 0;
+
+            padding: 20px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            min-height: 100vh;
+
+        }
+
+
+
+        .game-container {
+
+            max-width: 600px;
+
+            width: 100%;
+
+            background: #fffdf5;
+
+            border: 2px solid var(--rock);
+
+            border-radius: 8px;
+
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+
+            padding: 20px;
+
+            position: relative;
+
+        }
+
+
+
+        header {
+
+            text-align: center;
+
+            border-bottom: 2px solid var(--rock);
+
+            margin-bottom: 20px;
+
+            padding-bottom: 10px;
+
+        }
+
+
+
+        h1 { margin: 0; color: var(--accent); }
+
+        .subtitle { font-style: italic; color: #666; font-size: 0.9em; }
+
+
+
+        /* --- NEW: TRAVEL VISUALIZATION STAGE --- */
+
+        #travel-stage {
+
+            width: 100%;
+
+            height: 150px;
+
+            background-color: var(--sky);
+
+            border: 2px solid var(--rock);
+
+            margin-bottom: 20px;
+
+            position: relative;
+
+            overflow: hidden;
+
+            border-radius: 4px;
+
+        }
+
+
+
+        /* The scrolling background layer */
+
+        #stage-background {
+
+            position: absolute;
+
+            top: 0; left: 0;
+
+            width: 200%; /* Wider than container to allow scrolling */
+
+            height: 100%;
+
+            /* Complex gradient to create sky over scrolling sand dunes without images */
+
+            background: 
+
+                linear-gradient(to bottom, transparent 60%, var(--sand) 60%), /* Hard horizon line */
+
+                repeating-linear-gradient(90deg, var(--sand) 0px, var(--sand) 40px, var(--sand-shadow) 40px, var(--sand-shadow) 80px); /* Vertical stripes for movement */
+
+            background-size: 100% 100%, 160px 100%; /* Ensure pattern repeats correctly */
+
+            transition: background-position-x 0.5s ease-out; /* Smooth scrolling movement */
+
+        }
+
+
+
+        /* The static caravan sprite sits on top */
+
+        #stage-sprite {
+
+            position: absolute;
+
+            bottom: 20px; /* Sit on the horizon line */
+
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            font-size: 40px;
+
+            z-index: 2;
+
+            text-shadow: 2px 2px rgba(0,0,0,0.2);
+
+        }
+
+
+
+        /* --- Dashboard & Stats --- */
+
+        .dashboard {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+
+            gap: 10px;
+
+            background: #eee5ce;
+
+            padding: 15px;
+
+            border-radius: 5px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+
+        .stat-box {
+
+            text-align: center;
+
+            background: #fff;
+
+            padding: 8px;
+
+            border: 1px solid #dcdcdc;
+
+            border-radius: 4px;
+
+        }
+
+
+
+        .stat-label { font-size: 0.8em; font-weight: bold; color: #555; display: block; }
+
+        .stat-value { font-size: 1.2em; font-weight: bold; color: var(--accent); }
+
+
+
+        /* Progress Bar */
+
+        .progress-container {
+
+            width: 100%;
+
+            background-color: #ddd;
+
+            border-radius: 10px;
+
+            margin-bottom: 20px;
+
+            height: 20px;
+
+            overflow: hidden;
+
+        }
+
+
+
+        .progress-bar {
+
+            height: 100%;
+
+            background-color: var(--green);
+
+            width: 0%;
+
+            transition: width 0.5s;
+
+            text-align: center;
+
+            color: white;
+
+            font-size: 0.8em;
+
+            line-height: 20px;
+
+        }
+
+
+
+        /* Event Log */
+
+        #event-log {
+
+            height: 50px; /* Slightly shorter to accommodate visual stage */
+
+            overflow-y: auto;
+
+            border: 1px solid #ccc;
+
+            background: #fff;
+
+            padding: 15px;
+
+            margin-bottom: 20px;
+
+            border-radius: 4px;
+
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+
+        }
+
+
+
+        .log-entry { margin-bottom: 15px; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
+
+        .log-turn { font-weight: bold; color: var(--accent); font-size: 0.8em; text-transform: uppercase; }
+
+        .log-ref { font-size: 0.85em; color: #666; font-style: italic; display: block; margin-top: 4px; }
+
+        .log-context { background: #e3f2fd; padding: 5px 10px; margin-top: 5px; border-left: 3px solid #2196f3; font-size: 0.9em; display: none; }
+
+        .log-context.visible { display: block; }
+
+        .highlight-good { color: var(--green); }
+
+        .highlight-bad { color: var(--red); }
+
+
+
+        /* Controls */
+
+        .controls {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+            gap: 10px;
+
+        }
+
+
+
+        button {
+
+            padding: 12px;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-weight: bold;
+
+            border: none;
+
+            border-radius: 4px;
+
+            background-color: var(--rock);
+
+            color: white;
+
+            transition: background 0.2s;
+
+        }
+
+
+
+        button:hover:not(:disabled) { background-color: var(--accent); }
+
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+
+
+        /* Settings & Footer */
+
+        .settings-bar {
+
+            margin-top: 20px;
+
+            padding-top: 10px;
+
+            border-top: 1px solid #ccc;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            font-size: 0.9em;
+
+        }
+
+
+
+        .toggle-label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+
+
+        /* Modal for Game Over */
+
+        #modal-overlay {
+
+            position: fixed;
+
+            top: 0; left: 0; width: 100%; height: 100%;
+
+            background: rgba(0,0,0,0.7);
+
+            display: none;
+
+            justify-content: center;
+
+            align-items: center;
+
+            z-index: 100;
+
+        }
+
+
+
+        .modal-content {
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 8px;
+
+            max-width: 500px;
+
+            text-align: center;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+
+
+<div class="game-container">
+
+    <header>
+
+        <h1>Wilderness Journey</h1>
+
+        <div class="subtitle">Lead the people from Egypt to the Promised Land</div>
+
+    </header>
+
+
+
+    <div id="travel-stage">
+
+        <div id="stage-background"></div>
+
+        <div id="stage-sprite">🚶‍♂️🐪🚶‍♀️</div>
+
+    </div>
+
+
+
+    <div class="dashboard">
+
+        <div class="stat-box">
+
+            <span class="stat-label">Time</span>
+
+            <span class="stat-value" id="disp-year">Year 1</span>
+
+        </div>
+
+        <div class="stat-box">
+
+            <span class="stat-label">Food</span>
+
+            <span class="stat-value" id="disp-food">100</span>
+
+        </div>
+
+        <div class="stat-box">
+
+            <span class="stat-label">Water</span>
+
+            <span class="stat-value" id="disp-water">100</span>
+
+        </div>
+
+        <div class="stat-box">
+
+            <span class="stat-label">Health</span>
+
+            <span class="stat-value" id="disp-health">100%</span>
+
+        </div>
+
+        <div class="stat-box">
+
+            <span class="stat-label">Faith</span>
+
+            <span class="stat-value" id="disp-faith">100%</span>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="progress-container">
+
+        <div class="progress-bar" id="progress-bar">0% to Canaan</div>
+
+    </div>
+
+
+
+    <div id="event-log">
+
+        <div class="log-entry">
+
+            <div class="log-turn">Start of Journey</div>
+
+            <div>You have crossed the Red Sea. The wilderness lies before you. Guide the people with wisdom and trust in God.</div>
+
+            <span class="log-ref">Exodus 15:22</span>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="controls">
+
+        <button onclick="game.takeAction('travel')">Travel Forward</button>
+
+        <button onclick="game.takeAction('rest')">Rest & Camp</button>
+
+        <button onclick="game.takeAction('food')">Gather Manna</button>
+
+        <button onclick="game.takeAction('water')">Seek Water</button>
+
+        <button onclick="game.takeAction('pray')">Seek Guidance</button>
+
+        <button onclick="game.takeAction('teach')">Encourage Obedience</button>
+
+    </div>
+
+
+
+    <div class="settings-bar">
+
+        <label class="toggle-label">
+
+            <input type="checkbox" id="teacher-mode"> Teacher Mode (Easier)
+
+        </label>
+
+        <label class="toggle-label">
+
+            <input type="checkbox" id="show-context" checked> Show Scripture Context
+
+        </label>
+
+        <button onclick="game.resetGame()" style="padding: 5px 10px; background: #666;">Restart</button>
+
+    </div>
+
+</div>
+
+
+
+<div id="modal-overlay">
+
+    <div class="modal-content">
+
+        <h2 id="modal-title">Game Over</h2>
+
+        <p id="modal-message">Description of what happened.</p>
+
+        <div id="modal-ref" style="font-style: italic; color: #666; margin: 15px 0;"></div>
+
+        <button onclick="game.resetGame()">Start New Journey</button>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    /**
+
+     * SCRIPTURE DATABASE
+
+     */
+
+    const SCRIPTURE_DB = {
+
+        actions: {
+
+            travel: { ref: "Numbers 10:33", text: "The cloud lifted, and you set out." },
+
+            rest: { ref: "Numbers 9:18", text: "At the command of the Lord, the people camped." },
+
+            food: { ref: "Exodus 16:4", text: "The people gathered manna, each as much as needed." },
+
+            water: { ref: "Exodus 17:1", text: "You search for water in the wilderness." },
+
+            pray: { ref: "Exodus 33:14", text: "You sought the Lord's presence for rest and guidance." },
+
+            teach: { ref: "Deuteronomy 6:6-7", text: "You taught the commandments diligently to the people." }
+
+        },
+
+        events: [
+
+            {
+
+                id: 'manna_rain',
+
+                text: "Bread rains from heaven! The people gather white flakes tasting like wafers with honey.",
+
+                ref: "Exodus 16:14-15",
+
+                context: "God provided manna daily for 40 years, teaching reliance on His daily provision.",
+
+                effect: { food: 40, faith: 5 }
+
+            },
+
+            {
+
+                id: 'quail',
+
+                text: "A wind drives quail in from the sea, covering the camp. There is meat to eat.",
+
+                ref: "Numbers 11:31",
+
+                context: "God provided meat when the people complained about only having manna.",
+
+                effect: { food: 30, health: 5 }
+
+            },
+
+            {
+
+                id: 'water_rock',
+
+                text: "At God's command, you strike the rock and water gushes out.",
+
+                ref: "Exodus 17:6",
+
+                context: "This occurred at Horeb (Meribah), showing God's power over nature.",
+
+                effect: { water: 50, faith: 10 }
+
+            },
+
+            {
+
+                id: 'complaint_food',
+
+                text: "The rabble begins to crave Egyptian food: 'We remember the fish and cucumbers!'",
+
+                ref: "Numbers 11:4-6",
+
+                context: "Selective memory of Egypt caused discontent despite their freedom.",
+
+                effect: { faith: -15, morale: -10 }
+
+            },
+
+            {
+
+                id: 'golden_calf',
+
+                text: "While you were away, some people made an idol. Order is restored, but at a cost.",
+
+                ref: "Exodus 32:7-8",
+
+                context: "A major breach of the Covenant occurring at Mt. Sinai.",
+
+                effect: { faith: -30, health: -10 }
+
+            },
+
+            {
+
+                id: 'spies_report',
+
+                text: "Spies return from Canaan. Ten say 'It is impossible,' two say 'God is with us.'",
+
+                ref: "Numbers 13:30-33",
+
+                context: "Fear overtook faith, leading to the 40-year wandering penalty.",
+
+                effect: { faith: -20, distance_penalty: true }
+
+            },
+
+            {
+
+                id: 'pillar_cloud',
+
+                text: "The Pillar of Cloud guides you clearly today, making travel swift.",
+
+                ref: "Exodus 13:21",
+
+                context: "God's visible presence guided them day and night.",
+
+                effect: { distance: 15, faith: 5 }
+
+            }
+
+        ]
+
+    };
+
+
+
+    /**
+
+     * GAME ENGINE
+
+     */
+
+    class Game {
+
+        constructor() {
+
+            this.resetState();
+
+            
+
+            // UI References
+
+            this.ui = {
+
+                year: document.getElementById('disp-year'),
+
+                food: document.getElementById('disp-food'),
+
+                water: document.getElementById('disp-water'),
+
+                health: document.getElementById('disp-health'),
+
+                faith: document.getElementById('disp-faith'),
+
+                progressBar: document.getElementById('progress-bar'),
+
+                // NEW: Reference to the scrolling background layer
+
+                stageBackground: document.getElementById('stage-background'),
+
+                log: document.getElementById('event-log'),
+
+                teacherMode: document.getElementById('teacher-mode'),
+
+                showContext: document.getElementById('show-context'),
+
+                modal: document.getElementById('modal-overlay'),
+
+                modalTitle: document.getElementById('modal-title'),
+
+                modalMsg: document.getElementById('modal-message'),
+
+                modalRef: document.getElementById('modal-ref')
+
+            };
+
+        }
+
+
+
+        resetState() {
+
+            this.state = {
+
+                year: 1,
+
+                turn: 1,
+
+                food: 100,
+
+                water: 100,
+
+                health: 100,
+
+                faith: 100,
+
+                distanceCovered: 0,
+
+                distanceGoal: 1000, // Arbitrary distance units
+
+                isGameOver: false,
+
+                wanderingPenalty: false
+
+            };
+
+        }
+
+
+
+        resetGame() {
+
+            this.resetState();
+
+            this.ui.log.innerHTML = '<div class="log-entry"><div class="log-turn">Start of Journey</div><div>The Exodus begins.</div><span class="log-ref">Exodus 12</span></div>';
+
+            this.ui.modal.style.display = 'none';
+
+            this.updateUI();
+
+        }
+
+
+
+        takeAction(action) {
+
+            if (this.state.isGameOver) return;
+
+
+
+            let logMsg = "";
+
+            let logRef = "";
+
+            const consumption = this.ui.teacherMode.checked ? 5 : 10;
+
+            
+
+            switch(action) {
+
+                case 'travel':
+
+                    let speed = 50;
+
+                    if (this.state.faith < 50) speed = 25;
+
+                    if (this.state.wanderingPenalty) speed = 10; 
+
+
+
+                    this.state.distanceCovered += speed;
+
+                    this.state.food -= consumption;
+
+                    this.state.water -= consumption;
+
+                    this.state.health -= 2;
+
+                    logMsg = SCRIPTURE_DB.actions.travel.text;
+
+                    logRef = SCRIPTURE_DB.actions.travel.ref;
+
+                    break;
+
+
+
+                case 'rest':
+
+                    this.state.health = Math.min(100, this.state.health + 10);
+
+                    this.state.food -= (consumption / 2);
+
+                    this.state.water -= (consumption / 2);
+
+                    logMsg = SCRIPTURE_DB.actions.rest.text;
+
+                    logRef = SCRIPTURE_DB.actions.rest.ref;
+
+                    break;
+
+
+
+                case 'food':
+
+                    const gatheredFood = Math.floor(Math.random() * 20) + 15;
+
+                    this.state.food = Math.min(150, this.state.food + gatheredFood);
+
+                    this.state.water -= 5;
+
+                    this.state.distanceCovered += 5; 
+
+                    logMsg = `${SCRIPTURE_DB.actions.food.text} (+${gatheredFood} Food)`;
+
+                    logRef = SCRIPTURE_DB.actions.food.ref;
+
+                    break;
+
+
+
+                case 'water':
+
+                    const foundWater = Math.floor(Math.random() * 20) + 15;
+
+                    this.state.water = Math.min(150, this.state.water + foundWater);
+
+                    this.state.food -= 5;
+
+                    logMsg = `${SCRIPTURE_DB.actions.water.text} (+${foundWater} Water)`;
+
+                    logRef = SCRIPTURE_DB.actions.water.ref;
+
+                    break;
+
+
+
+                case 'pray':
+
+                    this.state.faith = Math.min(100, this.state.faith + 15);
+
+                    this.state.food -= 5;
+
+                    this.state.water -= 5;
+
+                    logMsg = SCRIPTURE_DB.actions.pray.text;
+
+                    logRef = SCRIPTURE_DB.actions.pray.ref;
+
+                    break;
+
+
+
+                case 'teach':
+
+                    this.state.faith = Math.min(100, this.state.faith + 10);
+
+                    this.state.health = Math.min(100, this.state.health + 5);
+
+                    this.state.food -= 5;
+
+                    this.state.water -= 5;
+
+                    logMsg = SCRIPTURE_DB.actions.teach.text;
+
+                    logRef = SCRIPTURE_DB.actions.teach.ref;
+
+                    break;
+
+            }
+
+
+
+            this.state.turn++;
+
+            if (this.state.wanderingPenalty) {
+
+                this.state.year += 1; 
+
+            } else if (this.state.turn % 5 === 0) {
+
+                this.state.year += 1;
+
+            }
+
+
+
+            this.addLog(logMsg, logRef, null);
+
+            this.handleRandomEvent();
+
+            this.checkGameStatus();
+
+            this.updateUI();
+
+        }
+
+
+
+        handleRandomEvent() {
+
+            const chance = this.ui.teacherMode.checked ? 0.15 : 0.30;
+
+            if (Math.random() > chance) return;
+
+
+
+            const event = SCRIPTURE_DB.events[Math.floor(Math.random() * SCRIPTURE_DB.events.length)];
+
+
+
+            if (event.effect.food) this.state.food += event.effect.food;
+
+            if (event.effect.water) this.state.water += event.effect.water;
+
+            if (event.effect.faith) this.state.faith += event.effect.faith;
+
+            if (event.effect.health) this.state.health += event.effect.health;
+
+            if (event.effect.distance) this.state.distanceCovered += event.effect.distance;
+
+            
+
+            if (event.effect.distance_penalty && !this.state.wanderingPenalty) {
+
+                this.state.wanderingPenalty = true;
+
+                this.addLog("<strong>PENALTY:</strong> Because of unbelief, the journey will now take 40 years.", "Numbers 14:34", null, "bad");
+
+            }
+
+
+
+            const typeClass = (event.effect.faith && event.effect.faith < 0) ? "highlight-bad" : "highlight-good";
+
+            this.addLog(event.text, event.ref, event.context, typeClass);
+
+        }
+
+
+
+        addLog(text, ref, context, cssClass = "") {
+
+            const div = document.createElement('div');
+
+            div.className = "log-entry";
+
+            
+
+            let html = `<div class="log-turn">Time: Year ${this.state.year}</div>`;
+
+            html += `<div class="${cssClass}">${text}</div>`;
+
+            if (ref) html += `<span class="log-ref">${ref}</span>`;
+
+            
+
+            if (context) {
+
+                const showContext = this.ui.showContext.checked ? "visible" : "";
+
+                html += `<div class="log-context ${showContext}"><strong>Context:</strong> ${context}</div>`;
+
+            }
+
+
+
+            div.innerHTML = html;
+
+            this.ui.log.prepend(div);
+
+        }
+
+
+
+        checkGameStatus() {
+
+            if (this.state.distanceCovered >= this.state.distanceGoal) {
+
+                this.triggerGameOver("Victory!", "After a long journey, Joshua leads the people across the Jordan River into the Promised Land.", "Joshua 4:10-14");
+
+            }
+
+
+
+            if (this.state.food <= 0) this.triggerGameOver("Defeat", "The people have run out of food and cannot continue.", "Exodus 16:3");
+
+            if (this.state.water <= 0) this.triggerGameOver("Defeat", "The people have perished from thirst.", "Exodus 17:3");
+
+            if (this.state.health <= 0) this.triggerGameOver("Defeat", "Plague and illness have consumed the camp.", "Numbers 11:33");
+
+            if (this.state.faith <= 0) {
+
+                this.triggerGameOver("Rebellion", "The people have completely rejected your leadership and returned to Egypt.", "Numbers 14:4");
+
+            }
+
+        }
+
+
+
+        triggerGameOver(title, message, ref) {
+
+            this.state.isGameOver = true;
+
+            this.ui.modalTitle.innerText = title;
+
+            this.ui.modalMsg.innerText = message;
+
+            this.ui.modalRef.innerText = ref;
+
+            this.ui.modal.style.display = 'flex';
+
+        }
+
+
+
+        updateUI() {
+
+            this.state.faith = Math.max(0, Math.min(100, this.state.faith));
+
+            this.state.health = Math.max(0, Math.min(100, this.state.health));
+
+
+
+            this.ui.year.innerText = "Year " + this.state.year;
+
+            this.ui.food.innerText = Math.floor(this.state.food);
+
+            this.ui.water.innerText = Math.floor(this.state.water);
+
+            this.ui.health.innerText = Math.floor(this.state.health) + "%";
+
+            this.ui.faith.innerText = Math.floor(this.state.faith) + "%";
+
+
+
+            let pct = Math.floor((this.state.distanceCovered / this.state.distanceGoal) * 100);
+
+            if (pct > 100) pct = 100;
+
+            this.ui.progressBar.style.width = pct + "%";
+
+            this.ui.progressBar.innerText = pct + "% to Canaan";
+
+
+
+            // --- NEW: Update Travel Visualization ---
+
+            // Calculate background offset. We shift the background left (negative X)
+
+            // based on distance covered to make the sprite appear to move right.
+
+            // We multiply by 2 just to make the movement more noticeable.
+
+            const bgOffset = -(this.state.distanceCovered * 2);
+
+            // We only shift the second background layer (the stripes), keeping the sky static
+
+            this.ui.stageBackground.style.backgroundPosition = `0 0, ${bgOffset}px 0`;
+
+
+
+            this.ui.faith.style.color = this.state.faith < 30 ? "red" : "#b06500";
+
+        }
+
+    }
+
+
+
+    const game = new Game();
+
+    game.updateUI();
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
